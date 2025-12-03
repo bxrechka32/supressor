@@ -1129,4 +1129,48 @@ func generateNetworkID() string {
 }
 
 func generatePeerID() string {
-	return fmt.Sprintf("peer_%x", time.Now().
+	return fmt.Sprintf("peer_%x", time.Now().UnixNano())
+}
+
+func generatePrivateKey() string {
+	key := make([]byte, 32)
+	rand.Read(key)
+	return base64.StdEncoding.EncodeToString(key)
+}
+
+func generatePublicKey(privateKey string) string {
+	// В реальном приложении используйте криптографию Curve25519
+	hash := sha256.Sum256([]byte(privateKey))
+	return base64.StdEncoding.EncodeToString(hash[:])
+}
+
+func generateNetworkIP() net.IP {
+	// Генерация случайного IP в диапазоне 10.x.x.x
+	return net.IPv4(10, 
+		byte(rand.Intn(256)),
+		byte(rand.Intn(256)),
+		byte(1+rand.Intn(254)))
+}
+
+func parseIPNets(ips []string) []net.IPNet {
+	var ipNets []net.IPNet
+	for _, ipStr := range ips {
+		_, ipNet, err := net.ParseCIDR(ipStr)
+		if err == nil {
+			ipNets = append(ipNets, *ipNet)
+		}
+	}
+	return ipNets
+}
+
+func joinIPNets(ips []string) string {
+	return strings.Join(ips, ",")
+}
+
+func joinIPs(ips []net.IP) string {
+	var ipStrs []string
+	for _, ip := range ips {
+		ipStrs = append(ipStrs, ip.String())
+	}
+	return strings.Join(ipStrs, ",")
+}
